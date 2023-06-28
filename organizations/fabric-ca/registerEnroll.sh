@@ -37,7 +37,7 @@ function createUsco() {
 
   infoln "Registering the org admin"
   set -x
-  fabric-ca-client register --caname ca-usco --id.name madridadmin --id.secret madridadminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+  fabric-ca-client register --caname ca-usco --id.name uscoadmin --id.secret uscoadminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Generating the peer0 msp"
@@ -74,7 +74,7 @@ function createUsco() {
 
   infoln "Generating the org admin msp"
   set -x
-  fabric-ca-client enroll -u https://madridadmin:madridadminpw@localhost:7054 --caname ca-usco -M "${PWD}/organizations/peerOrganizations/usco.universidades.com/users/Admin@usco.universidades.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+  fabric-ca-client enroll -u https://uscoadmin:uscoadminpw@localhost:7054 --caname ca-usco -M "${PWD}/organizations/peerOrganizations/usco.universidades.com/users/Admin@usco.universidades.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/usco.universidades.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/usco.universidades.com/users/Admin@usco.universidades.com/msp/config.yaml"
@@ -117,7 +117,7 @@ function createIebs() {
 
   infoln "Registering the org admin"
   set -x
-  fabric-ca-client register --caname ca-iebs --id.name bogotaadmin --id.secret bogotaadminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/iebs/tls-cert.pem"
+  fabric-ca-client register --caname ca-iebs --id.name iebsadmin --id.secret iebsadminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/iebs/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Generating the peer0 msp"
@@ -154,7 +154,7 @@ function createIebs() {
 
   infoln "Generating the org admin msp"
   set -x
-  fabric-ca-client enroll -u https://bogotaadmin:bogotaadminpw@localhost:8054 --caname ca-iebs -M "${PWD}/organizations/peerOrganizations/iebs.universidades.com/users/Admin@iebs.universidades.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/iebs/tls-cert.pem"
+  fabric-ca-client enroll -u https://iebsadmin:iebsadminpw@localhost:8054 --caname ca-iebs -M "${PWD}/organizations/peerOrganizations/iebs.universidades.com/users/Admin@iebs.universidades.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/iebs/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/iebs.universidades.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/iebs.universidades.com/users/Admin@iebs.universidades.com/msp/config.yaml"

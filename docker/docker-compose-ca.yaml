@@ -6,7 +6,7 @@ networks:
 
 services:
 
-  ca_madrid:
+  ca_usco:
     image: hyperledger/fabric-ca:1.5.2
     labels:
       service: hyperledger-fabric
@@ -22,11 +22,11 @@ services:
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/usco:/etc/hyperledger/fabric-ca-server
-    container_name: ca_madrid
+    container_name: ca_usco
     networks:
       - test
 
-  ca_bogota:
+  ca_iebs:
     image: hyperledger/fabric-ca:1.5.2
     labels:
       service: hyperledger-fabric
@@ -42,7 +42,7 @@ services:
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/iebs:/etc/hyperledger/fabric-ca-server
-    container_name: ca_bogota
+    container_name: ca_iebs
     networks:
       - test
 
