@@ -45,7 +45,7 @@ Organizations:
         Name: IebsMSP
         ID: IebsMSP
 
-        MSPDir: ../organizations/peerOrganizations/Iebs.universidades.com/msp
+        MSPDir: ../organizations/peerOrganizations/iebs.universidades.com/msp
         Policies:
             Readers:
                 Type: Signature
