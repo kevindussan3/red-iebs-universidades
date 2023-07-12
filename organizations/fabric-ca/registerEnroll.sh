@@ -32,7 +32,7 @@ function createUsco() {
 
   infoln "Registering user"
   set -x
-  fabric-ca-client register --caname ca-usco --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+  fabric-ca-client register --caname ca-usco --id.name dussan --id.secret k1079186609 --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Registering the org admin"
@@ -67,10 +67,10 @@ function createUsco() {
 
   infoln "Generating the user msp"
   set -x
-  fabric-ca-client enroll -u https://user1:user1pw@localhost:7054 --caname ca-usco -M "${PWD}/organizations/peerOrganizations/usco.universidades.com/users/User1@usco.universidades.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+  fabric-ca-client enroll -u https://dussan:k1079196609@localhost:7054 --caname ca-usco -M "${PWD}/organizations/peerOrganizations/usco.universidades.com/users/dussan@usco.universidades.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
   { set +x; } 2>/dev/null
 
-  cp "${PWD}/organizations/peerOrganizations/usco.universidades.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/usco.universidades.com/users/User1@usco.universidades.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/usco.universidades.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/usco.universidades.com/users/dussan@usco.universidades.com/msp/config.yaml"
 
   infoln "Generating the org admin msp"
   set -x
@@ -112,7 +112,7 @@ function createIebs() {
 
   infoln "Registering user"
   set -x
-  fabric-ca-client register --caname ca-iebs --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/iebs/tls-cert.pem"
+  fabric-ca-client register --caname ca-iebs --id.name kevin --id.secret kevin1079186609 --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/iebs/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Registering the org admin"
@@ -147,10 +147,10 @@ function createIebs() {
 
   infoln "Generating the user msp"
   set -x
-  fabric-ca-client enroll -u https://user1:user1pw@localhost:8054 --caname ca-iebs -M "${PWD}/organizations/peerOrganizations/iebs.universidades.com/users/User1@iebs.universidades.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/iebs/tls-cert.pem"
+  fabric-ca-client enroll -u https://kevin:kevin109186609@localhost:8054 --caname ca-iebs -M "${PWD}/organizations/peerOrganizations/iebs.universidades.com/users/kevin@iebs.universidades.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/iebs/tls-cert.pem"
   { set +x; } 2>/dev/null
 
-  cp "${PWD}/organizations/peerOrganizations/iebs.universidades.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/iebs.universidades.com/users/User1@iebs.universidades.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/iebs.universidades.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/iebs.universidades.com/users/kevin@iebs.universidades.com/msp/config.yaml"
 
   infoln "Generating the org admin msp"
   set -x

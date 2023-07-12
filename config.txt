@@ -3,6 +3,51 @@ docker rm $(docker ps -a -q)
 docker volume prune
 docker network prune
 
+sudo apt-get update
+sudo apt-get install automake
+sudo apt-get install autoconf
+sudo apt-get install libtool
+sudo apt install libltdl-dev
+sudo apt-get install -y pkg-config
+
+git clone https://github.com/opendnssec/SoftHSMv2.git
+cd SoftHSMv2/
+./autogen.sh 
+./configure 
+make
+sudo make install
+
+export PATH=${PWD}/fabric-ca/bin:${PWD}:$PATH
+
+softhsm2-util --init-token --slot 2 --label "fabric"
+->71811222
+
+
+red-iebs-universidades/fabric-ca
+
+make fabric-ca-server GO_TAGS=pkcs11
+make fabric-ca-client GO_TAGS=pkcs11
+make docker GO_TAGS=pkcs11
+
+
+cp ~/curso/fabric-ca-server-config.yaml ~/curso/fabric-ca/bin/
+
+cd ~/curso/fabric-ca/bin
+
+./fabric-ca-server init -b admin:adminpw -d
+
+vi ~/curso/fabric-ca/bin/fabric-ca-server-config.yaml
+bccsp:
+    default: PKCS11
+    pkcs11:
+        Library: /home/dev/softhsm-2.3.0/src/lib/.libs/libsofthsm2.so 
+        Pin: "71811222"
+        Label: fabric
+        hash: SHA2
+        security: 256
+        Immutable: false
+
+
 rm -rf organizations/peerOrganizations
 rm -rf organizations/ordererOrganizations
 rm -rf channel-artifacts/
@@ -79,3 +124,67 @@ export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_IEBS_CA
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/iebs.universidades.com/users/Admin@iebs.universidades.com/msp
 export CORE_PEER_ADDRESS=localhost:9051
 peer channel join -b ./channel-artifacts/universidadeschannel.block
+
+
+
+
+
+
+
+
+
+
+sudo rm -rf organizations/peerOrganizations
+sudo rm -rf organizations/ordererOrganizations
+sudo rm -rf channel-artifacts/
+mkdir channel-artifacts
+
+export SOFTHSM2_CONF=/home/sergiotpt/softhsm-2.3.0/file.conf
+export PATH=${PWD}/fabric-ca/bin:${PWD}:$PATH
+
+docker-compose -f docker/docker-compose-ca.yaml up -d
+
+. ./organizations/fabric-ca/registerEnroll.sh && createUsco
+. ./organizations/fabric-ca/registerEnroll.sh && createIebs
+. ./organizations/fabric-ca/registerEnroll.sh && createOrderer
+
+export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/usco.example.com/
+fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-usco --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+
+fabric-ca-client register --caname ca-usco --id.name sergio --id.secret 22349 --id.affiliation usco.department2 --id.attrs 'hf.Revoker=true,admin=true:ecert' --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+fabric-ca-client enroll -u https://sergio:22349@localhost:7054 --caname ca-usco -M "${PWD}/organizations/peerOrganizations/usco.example.com/users/User1@usco.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+
+
+--- Añadir una nueva identidad de peer "peer1" en la CA_usco que sea del departamento 1 y que tenga un campo llamado Revoker igualado a true y de password "277884"
+export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/usco.example.com/
+
+fabric-ca-client register --caname ca-usco --id.name peer1 --id.secret 277884 --id.type peer --id.affiliation usco.department1 --id.attrs 'hf.Revoker=true,admin=true:ecert' --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+fabric-ca-client enroll -u https://peer1:277884@localhost:7054 --caname ca-usco -M "${PWD}/organizations/peerOrganizations/usco.example.com/peers/peer0.usco.example.com/msp" --csr.hosts peer0.usco.example.com --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+
+
+--- Añadir una nueva identidad de cliente llamado "juan" en la CA que sea de CA_usco y que tenga su email en otro campo (juan@examen.com) y de password "195639"
+fabric-ca-client identity add juan --secret 195639 --type client --affiliation . --maxenrollments 1 --id.attrs 'app1Admin=true:ecert,email=user1@gmail.com' --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+
+--- Adjunta el resultado de haber añadido a un nuevo usuario dentro de la CA.
+Successfully added identity - Name: juan, Type: client, Affiliation: , Max Enrollments: 1, Secret: 195639, Attributes: [{Name:app1Admin Value:true ECert:true} {Name:email Value:user1@gmail.com ECert:false} {Name:hf.EnrollmentID Value:juan ECert:true} {Name:hf.Type Value:client ECert:true} {Name:hf.Affiliation Value: ECert:true}]
+
+--- Revocar la identidad de "juan"
+fabric-ca-client identity remove juan --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+
+//si no funciona, con lo que habrá que cambiar la configuración de la CA con –cfg.identities.allowremove
+//en el fichero de docker-compose-hsm, cambiar
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d --cfg.affiliations.allowremove  --cfg.identities.allowremove'
+vi ~/curso/docker/docker-compose-ca.yaml
+
+docker stop ca_usco
+docker stop ca_iebs
+docker stop ca_orderer
+
+docker-compose -f docker/docker-compose-hsm.yaml up -d ca_usco
+
+fabric-ca-client identity remove juan --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+
+
+--- Revocar la identidad de "peer1" generando una crl
+fabric-ca-client gencrl -M msp --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
+fabric-ca-client revoke -e peer1 -u https://admin:adminpw@localhost:7054  -r unspecified --tls.certfiles "${PWD}/organizations/fabric-ca/usco/tls-cert.pem"
